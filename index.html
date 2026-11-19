@@ -342,6 +342,14 @@
   .stat-item strong { display: block; font-size: 36px; font-weight: 900; color: white; }
   .stat-item span { font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 500; }
 
+  .wa-form-btn { width: 100%; margin-top: 12px; padding: 13px; background: #25d366; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.3s; box-shadow: 0 6px 20px rgba(37,211,102,0.3); min-height: 48px; }
+  .wa-form-btn:hover { transform: translateY(-2px); }
+  .submit-btn:disabled { opacity: 0.7; cursor: wait; transform: none; }
+  .form-status { display: none; margin-top: 16px; padding: 14px 16px; border-radius: 10px; font-size: 14px; font-weight: 600; line-height: 1.6; }
+  .form-status.ok { display: block; background: #e8f5ee; color: #0f5a2a; border: 1px solid #b7e0c5; }
+  .form-status.err { display: block; background: #fdecea; color: #a12a1f; border: 1px solid #f3b9b3; }
+  .form-status a { color: inherit; }
+
   /* ─── RESPONSIVE ─── */
   html { -webkit-text-size-adjust: 100%; }
   img { max-width: 100%; }
@@ -870,24 +878,24 @@
         <div class="form-group">
           <label data-lang="en">YOUR NAME</label>
           <label class="hindi" data-lang="hi">आपका नाम</label>
-          <input type="text" placeholder="Full Name"/>
+          <input type="text" id="f_name" name="name" autocomplete="name" placeholder="Full Name" maxlength="80"/>
         </div>
         <div class="form-group">
           <label data-lang="en">PHONE NUMBER</label>
           <label class="hindi" data-lang="hi">फोन नंबर</label>
-          <input type="tel" placeholder="+91 XXXXX XXXXX"/>
+          <input type="tel" id="f_phone" name="phone" autocomplete="tel" inputmode="tel" placeholder="+91 XXXXX XXXXX" maxlength="20"/>
         </div>
       </div>
       <div class="form-group">
         <label data-lang="en">EMAIL ADDRESS</label>
         <label class="hindi" data-lang="hi">ईमेल पता</label>
-        <input type="email" placeholder="your@email.com"/>
+        <input type="email" id="f_email" name="email" autocomplete="email" placeholder="your@email.com" maxlength="100"/>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label data-lang="en">SERVICE REQUIRED</label>
           <label class="hindi" data-lang="hi">सेवा आवश्यक</label>
-          <select>
+          <select id="f_service" name="service">
             <option>Residential Solar</option>
             <option>Commercial Solar</option>
             <option>Industrial Solar</option>
@@ -898,18 +906,23 @@
         <div class="form-group">
           <label data-lang="en">SYSTEM SIZE NEEDED</label>
           <label class="hindi" data-lang="hi">जरूरी सिस्टम साइज़</label>
-          <input type="text" placeholder="e.g. 5KW, 50KW"/>
+          <input type="text" id="f_size" name="size" placeholder="e.g. 5KW, 50KW" maxlength="40"/>
         </div>
       </div>
       <div class="form-group">
         <label data-lang="en">MESSAGE / LOCATION</label>
         <label class="hindi" data-lang="hi">संदेश / स्थान</label>
-        <textarea placeholder="Tell us your location and electricity consumption..."></textarea>
+        <textarea id="f_message" name="message" placeholder="Tell us your location and electricity consumption..." maxlength="1000"></textarea>
       </div>
-      <button class="submit-btn" onclick="handleSubmit()">
+      <div style="position:absolute;left:-9999px;" aria-hidden="true"><input type="text" id="f_website" tabindex="-1" autocomplete="off"/></div>
+      <button class="submit-btn" id="submitBtn" onclick="handleSubmit()">
         <span data-lang="en">🚀 Send Request – We'll Call Back in 24 Hours</span>
         <span class="hindi" data-lang="hi">🚀 अनुरोध भेजें – 24 घंटे में कॉल करेंगे</span>
       </button>
+      <button type="button" class="wa-form-btn" onclick="sendViaWhatsApp()">
+        💬 <span data-lang="en">Or send this on WhatsApp</span><span class="hindi" data-lang="hi">या व्हाट्सएप पर भेजें</span>
+      </button>
+      <div id="formStatus" class="form-status" role="status" aria-live="polite"></div>
     </div>
   </div>
 </section>
@@ -1066,8 +1079,57 @@
   }
 
   // ── Contact Form Submit ──
+  var SHEET_URL = "https://script.google.com/macros/s/AKfycbzUwbMM_XYd5zrIcRgVu41TjrDLBDk4g5pifUZELP5PTVaKgTGHPiKZ3MtDL-fdj9im/exec";
+  var WA_NUMBER = '917070522886';
+
+  function isHi() { return document.body.classList.contains('hindi-mode'); }
+  function t(en, hi) { return isHi() ? hi : en; }
+  function formData() {
+    function v(id) { return document.getElementById(id).value.trim(); }
+    return { name: v('f_name'), phone: v('f_phone'), email: v('f_email'), service: v('f_service'), size: v('f_size'), message: v('f_message') };
+  }
+  function showStatus(kind, html) {
+    var el = document.getElementById('formStatus');
+    el.className = 'form-status ' + kind;
+    el.innerHTML = html;
+  }
+  function validate(d) {
+    if (d.name.length < 2) { showStatus('err', t('Please enter your name.', 'कृपया अपना नाम लिखें।')); document.getElementById('f_name').focus(); return false; }
+    if (d.phone.replace(/\D/g, '').length < 10) { showStatus('err', t('Please enter a valid 10-digit phone number.', 'कृपया सही 10 अंकों का फोन नंबर लिखें।')); document.getElementById('f_phone').focus(); return false; }
+    return true;
+  }
+  function waText(d) {
+    return 'Hello Lotus Global Industries, I want a solar site survey.\n\n' +
+      'Name: ' + d.name + '\nPhone: ' + d.phone + (d.email ? '\nEmail: ' + d.email : '') +
+      '\nService: ' + d.service + (d.size ? '\nSystem size: ' + d.size : '') +
+      (d.message ? '\nLocation/Message: ' + d.message : '');
+  }
+  function sendViaWhatsApp() {
+    var d = formData();
+    if (!validate(d)) return;
+    window.open('https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(waText(d)), '_blank');
+  }
   function handleSubmit() {
-    alert('Thank you for your enquiry!\n\nWe will call you back within 24 hours.\n\nFor immediate help, call or WhatsApp us at +91 70705 22886');
+    var d = formData();
+    if (!validate(d)) return;
+    // Spam trap: real visitors never see this field. Pretend success, send nothing.
+    if (document.getElementById('f_website').value) { showStatus('ok', t('Thank you! Your request has been sent.', 'धन्यवाद! आपका अनुरोध भेज दिया गया है।')); return; }
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    showStatus('ok', t('Sending your request...', 'आपका अनुरोध भेजा जा रहा है...'));
+    var body = new URLSearchParams(d).toString();
+    fetch(SHEET_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body })
+      .then(function() {
+        showStatus('ok', t('✅ Thank you, ' + d.name + '! Your request has been received. We will call you on ' + d.phone + ' within 24 hours.',
+                           '✅ धन्यवाद, ' + d.name + '! आपका अनुरोध मिल गया है। हम 24 घंटे में ' + d.phone + ' पर कॉल करेंगे।'));
+        ['f_name','f_phone','f_email','f_size','f_message'].forEach(function(id) { document.getElementById(id).value = ''; });
+        btn.disabled = false;
+      })
+      .catch(function() {
+        showStatus('err', t('⚠️ Sorry, your request could not be sent. Please tap "Or send this on WhatsApp" below, or call us at +91 70705 22886.',
+                            '⚠️ क्षमा करें, आपका अनुरोध नहीं भेजा जा सका। कृपया नीचे "व्हाट्सएप पर भेजें" दबाएं या +91 70705 22886 पर कॉल करें।'));
+        btn.disabled = false;
+      });
   }
 </script>
 </body>
