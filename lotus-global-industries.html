@@ -412,13 +412,9 @@
     .hero-stats { gap: 14px; }
   }
 
-  /* ─── LANG HIDDEN ─── */
-  [data-lang="hi"] { display: none; }
-  body.hindi-mode [data-lang="en"] { display: none; }
-  body.hindi-mode [data-lang="hi"] { display: block; }
-  body.hindi-mode span[data-lang="hi"] { display: inline; }
-  body.hindi-mode span[data-lang="en"] { display: none; }
-  span[data-lang="en"] { display: inline; }
+  /* ─── LANGUAGE TOGGLE ─── */
+  body:not(.hindi-mode) [data-lang="hi"] { display: none !important; }
+  body.hindi-mode [data-lang="en"] { display: none !important; }
 </style>
 </head>
 <body>
@@ -764,7 +760,7 @@
         <label data-lang="en">📍 LOCATION TYPE</label>
         <label class="hindi" data-lang="hi">📍 स्थान प्रकार</label>
         <select id="locType">
-          <option value="5" data-lang="en">Bihar (5 sun hrs/day)</option>
+          <option value="5">Bihar (5 sun hrs/day)</option>
           <option value="5.5">North Bihar (5.5 hrs)</option>
           <option value="4.8">Urban Patna (4.8 hrs)</option>
         </select>
@@ -841,7 +837,7 @@
           <div class="contact-item-text">
             <strong data-lang="en">EMAIL</strong>
             <strong class="hindi" data-lang="hi">ईमेल</strong>
-            <span><a href="mailto:lotusglobalindustries@gmail.com" style="color:inherit;text-decoration:none;word-break:break-all;">lotusglobalindustries@gmail.com</a></span>
+            <span><a class="js-email" href="#" style="color:inherit;text-decoration:none;word-break:break-all;"></a><noscript>lotusglobalindustries [at] gmail [dot] com</noscript></span>
           </div>
         </div>
         <div class="contact-item">
@@ -892,11 +888,11 @@
           <label data-lang="en">SERVICE REQUIRED</label>
           <label class="hindi" data-lang="hi">सेवा आवश्यक</label>
           <select>
-            <option data-lang="en">Residential Solar</option>
-            <option data-lang="en">Commercial Solar</option>
-            <option data-lang="en">Industrial Solar</option>
-            <option data-lang="en">Agricultural Solar</option>
-            <option data-lang="en">AMC/Maintenance</option>
+            <option>Residential Solar</option>
+            <option>Commercial Solar</option>
+            <option>Industrial Solar</option>
+            <option>Agricultural Solar</option>
+            <option>AMC/Maintenance</option>
           </select>
         </div>
         <div class="form-group">
@@ -935,18 +931,18 @@
     <div class="footer-col">
       <h4 data-lang="en">Quick Links</h4>
       <h4 class="hindi" data-lang="hi">त्वरित लिंक</h4>
-      <a href="#home" data-lang="en">Home</a>
-      <a href="#about" data-lang="en">About Us</a>
-      <a href="#services" data-lang="en">Services</a>
-      <a href="#projects" data-lang="en">Projects</a>
-      <a href="#calculator" data-lang="en">Solar Calculator</a>
-      <a href="#contact" data-lang="en">Contact</a>
+      <a href="#home">Home</a>
+      <a href="#about">About Us</a>
+      <a href="#services">Services</a>
+      <a href="#projects">Projects</a>
+      <a href="#calculator">Solar Calculator</a>
+      <a href="#contact">Contact</a>
     </div>
     <div class="footer-col">
       <h4 data-lang="en">Contact</h4>
       <h4 class="hindi" data-lang="hi">संपर्क</h4>
       <a href="tel:+917070522886">📞 +91 70705 22886</a>
-      <a href="mailto:lotusglobalindustries@gmail.com">📧 lotusglobalindustries@gmail.com</a>
+      <a class="js-email" data-prefix="📧 " href="#"></a>
       <a href="https://wa.me/917070522886" target="_blank">💬 WhatsApp</a>
       <a href="#">📍 Boring Road, Patna – 800001</a>
     </div>
@@ -959,6 +955,14 @@
 
 
 <script>
+  // Email is assembled here so it always displays correctly
+  (function() {
+    var e = 'lotusglobalindustries' + String.fromCharCode(64) + 'gmail.com';
+    document.querySelectorAll('.js-email').forEach(function(a) {
+      a.href = 'mailto:' + e;
+      a.textContent = (a.getAttribute('data-prefix') || '') + e;
+    });
+  })();
   // ── Language Toggle ──
   function toggleLang() {
     const body = document.body;
