@@ -343,25 +343,73 @@
   .stat-item span { font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 500; }
 
   /* ─── RESPONSIVE ─── */
+  html { -webkit-text-size-adjust: 100%; }
+  img { max-width: 100%; }
+  .nav-links a { display: flex; align-items: center; min-height: 40px; }
+  .btn-primary, .btn-secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; }
+  .calc-field input, .calc-field select, .form-group input, .form-group textarea, .form-group select { font-size: 16px; }
+  .hamburger { min-width: 44px; min-height: 44px; align-items: center; justify-content: center; }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* Large desktops: keep content from stretching too wide */
+  @media(min-width:1400px){
+    nav, section, .brands-section, .stats-strip, footer { padding-left: calc((100% - 1240px) / 2); padding-right: calc((100% - 1240px) / 2); }
+  }
+
+  /* Tablets and small laptops: collapse the menu so nothing is cramped */
+  @media(max-width:1024px){
+    .nav-links { display: none; position: fixed; top: 68px; left: 0; right: 0; background: white; flex-direction: column; align-items: stretch; padding: 12px 5% 18px; box-shadow: 0 12px 24px rgba(0,0,0,0.12); gap: 2px; max-height: calc(100vh - 68px); overflow-y: auto; }
+    .nav-links.open { display: flex; }
+    .nav-links a { padding: 14px 16px; font-size: 15px; }
+    .hamburger { display: flex; }
+    .hero-img { opacity: 0.1; }
+  }
+
   @media(max-width:900px){
-    .about-grid, .contact-grid { grid-template-columns: 1fr; }
+    .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 32px; }
     .footer-grid { grid-template-columns: 1fr 1fr; }
     .calc-grid { grid-template-columns: 1fr; }
     .results-grid { grid-template-columns: 1fr 1fr; }
-  }
-  @media(max-width:600px){
-    .nav-links { display: none; position: fixed; top: 68px; left: 0; right: 0; background: white; flex-direction: column; padding: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); gap: 4px; }
-    .nav-links.open { display: flex; }
-    .hamburger { display: flex; }
-    .nav-cta { display: none; }
     .hero-img { display: none; }
-    .hero-stats { gap: 20px; }
-    .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+    .about-visual { padding: 36px 28px; }
     .stats-row { grid-template-columns: repeat(2, 1fr); }
-    .form-row { grid-template-columns: 1fr; }
-    .calc-wrapper { padding: 28px 20px; }
-    .results-grid { grid-template-columns: 1fr 1fr; }
-    section { padding: 60px 5%; }
+  }
+
+  /* Phones */
+  @media(max-width:600px){
+    .nav-cta { display: none; }
+    .logo-text span:first-child { font-size: 13px; }
+    .logo-text span:last-child { font-size: 9px; letter-spacing: 0.6px; }
+    #home { align-items: flex-start; padding-top: 96px; padding-bottom: 48px; }
+    .hero-sub { font-size: 15px; }
+    .hero-btns { flex-direction: column; gap: 12px; margin-bottom: 36px; }
+    .hero-btns a { width: 100%; text-align: center; }
+    .hero-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .hero-stat strong { font-size: 26px; }
+    .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+    .form-row { grid-template-columns: 1fr; gap: 0; }
+    .calc-wrapper { padding: 28px 18px; border-radius: 18px; }
+    .calc-title { font-size: 21px; }
+    .result-box { padding: 14px 8px; }
+    .result-box .val { font-size: 21px; }
+    .contact-form { padding: 24px 18px; }
+    .section-sub { margin-bottom: 32px; }
+    .stat-item strong { font-size: 28px; }
+    .brand-chip { padding: 8px 14px; font-size: 12px; }
+    .brands-track { gap: 10px; }
+    .footer-bottom { flex-direction: column; text-align: center; }
+    .float-wa { width: 52px; height: 52px; bottom: 18px; right: 16px; font-size: 24px; }
+    section { padding: 56px 5%; }
+  }
+
+  /* Very small phones */
+  @media(max-width:380px){
+    .logo-text span:last-child { display: none; }
+    .lang-btn { padding: 6px 10px; }
+    .results-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 14px; }
   }
 
   /* ─── LANG HIDDEN ─── */
@@ -398,7 +446,7 @@
   <div class="nav-right">
     <button class="lang-btn" onclick="toggleLang()" id="langBtn">हिंदी</button>
     <a class="nav-cta" href="tel:+917070522886">📞 Call Us</a>
-    <div class="hamburger" onclick="toggleMenu()" id="hamburger">
+    <div class="hamburger" onclick="toggleMenu()" id="hamburger" role="button" aria-label="Open menu">
       <span></span><span></span><span></span>
     </div>
   </div>
@@ -793,7 +841,7 @@
           <div class="contact-item-text">
             <strong data-lang="en">EMAIL</strong>
             <strong class="hindi" data-lang="hi">ईमेल</strong>
-            <span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fe92918a8b8d9992919c9f9297909a8b8d8a8c979b8dbe99939f9792d09d9193">[email&#160;protected]</a></span>
+            <span><a href="mailto:lotusglobalindustries@gmail.com" style="color:inherit;text-decoration:none;word-break:break-all;">lotusglobalindustries@gmail.com</a></span>
           </div>
         </div>
         <div class="contact-item">
@@ -898,7 +946,7 @@
       <h4 data-lang="en">Contact</h4>
       <h4 class="hindi" data-lang="hi">संपर्क</h4>
       <a href="tel:+917070522886">📞 +91 70705 22886</a>
-      <a href="/cdn-cgi/l/email-protection#b9d5d6cdcccaded5d6dbd8d5d0d7ddcccacdcbd0dccaf9ded4d8d0d597dad6d4">📧 <span class="__cf_email__" data-cfemail="b7dbd8c3c2c4d0dbd8d5d6dbded9d3c2c4c3c5ded2c4f7d0dad6dedb99d4d8da">[email&#160;protected]</span></a>
+      <a href="mailto:lotusglobalindustries@gmail.com">📧 lotusglobalindustries@gmail.com</a>
       <a href="https://wa.me/917070522886" target="_blank">💬 WhatsApp</a>
       <a href="#">📍 Boring Road, Patna – 800001</a>
     </div>
@@ -909,7 +957,7 @@
   </div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+
 <script>
   // ── Language Toggle ──
   function toggleLang() {
@@ -927,7 +975,14 @@
   // ── Mobile Menu ──
   function toggleMenu() {
     document.getElementById('navLinks').classList.toggle('open');
+    document.getElementById('hamburger').classList.toggle('open');
   }
+  document.querySelectorAll('.nav-links a').forEach(function(a) {
+    a.addEventListener('click', function() {
+      document.getElementById('navLinks').classList.remove('open');
+      document.getElementById('hamburger').classList.remove('open');
+    });
+  });
 
   // ── Active Nav on Scroll ──
   window.addEventListener('scroll', function() {
